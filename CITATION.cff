@@ -1,0 +1,51 @@
+cff-version: 1.2.0
+title: >-
+  CARVE-V: Core Area Reduction by Verified Elimination — a workload-driven ISA
+  subsetting flow for CVA6
+message: >-
+  If you use this specification, the isaprof instrument, or results derived from
+  them, please cite this repository.
+type: software
+abstract: >-
+  A project specification and measurement instrument for deriving an instruction
+  subset from a target workload, pruning an application-class RISC-V core
+  accordingly, proving the pruned core equivalent to the baseline on the
+  surviving subset, and preserving binary compatibility through M-mode
+  trap-and-emulate handlers. The reclaimed area is reinvested in a CV-X-IF
+  attached TinyML datapath. The target application is an always-on micro-UAV
+  perception node using mmWave radar and IMU.
+authors:
+  - name: The CARVE-V contributors
+license: Apache-2.0
+version: 0.1.0
+keywords:
+  - RISC-V
+  - CVA6
+  - ISA subsetting
+  - instruction set customisation
+  - trap-and-emulate
+  - formal equivalence
+  - CV-X-IF
+  - TinyML
+  - edge AI
+  - ASIC tapeout
+references:
+  - type: article
+    title: Flexing RISC-V Instruction Subset Processors to Extreme Edge
+    url: https://arxiv.org/abs/2505.04567
+    notes: >-
+      Closest prior work on instruction subsetting. Targets tiny cores; does not
+      preserve binary compatibility and does not formally verify the pruning.
+  - type: article
+    title: >-
+      NeCTAr: A Heterogeneous RISC-V SoC for Language Model Inference in Intel 16
+    url: https://arxiv.org/abs/2503.14708
+    notes: >-
+      Feasibility precedent for a university test chip. Not prior art on ISA
+      subsetting.
+  - type: software
+    title: CVA6 — the CORE-V application-class RISC-V core
+    url: https://github.com/openhwgroup/cva6
+  - type: software
+    title: Chipyard — an agile RISC-V SoC design framework
+    url: https://github.com/ucb-bar/chipyard

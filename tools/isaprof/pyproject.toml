@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "isaprof"
+version = "0.1.0"
+description = "RISC-V instruction-coverage measurement for workload-driven ISA subsetting"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+# No runtime dependencies, by design: the instrument must run on a bare
+# Python 3 install, with no RISC-V toolchain and no objdump present.
+dependencies = []
+
+[project.scripts]
+isaprof = "isaprof.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["isaprof*"]

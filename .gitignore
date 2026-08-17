@@ -1,0 +1,90 @@
+# ---------------------------------------------------------------------------
+# PDK and foundry data — see R-7.6 through R-7.9.
+# No process design kit data may enter this repository under any circumstances.
+# ---------------------------------------------------------------------------
+pdk/
+*.lib
+*.lef
+*.gds
+*.gds.gz
+*.oas
+*.cdl
+*.spi
+*.db
+*.ndm
+tech/
+foundry/
+
+# EDA tool output
+work/
+simv*
+csrc/
+*.daidir/
+ucli.key
+vcs.log
+novas.*
+verdi*
+DVEfiles/
+*.vpd
+*.fsdb
+*.vcd
+*.shm/
+xcelium.d/
+xrun.*
+obj_dir/
+*.log
+!docs/**/*.log
+# Test fixtures are checked in so the suite runs without a toolchain.
+!tools/isaprof/tests/fixtures/*.log
+
+# Synthesis / PnR output
+reports/
+results/
+runs/
+*.sdc.gen
+*.def
+*.spef
+*.sdf
+
+# FPGA
+*.bit
+*.mcs
+*.jou
+*.str
+.Xil/
+vivado*.log
+vivado*.jou
+
+# Software build
+*.o
+*.a
+*.elf
+!tools/isaprof/tests/fixtures/*.elf
+*.bin
+*.hex
+*.map
+*.dis
+build/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Generated profiles and reports
+*.isaprof.json
+isaprof-report.*
+
+# Editors and OS
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store

@@ -1,0 +1,109 @@
+name: ci
+
+# The gates that exist today. As RTL lands, extend this with the remaining
+# stages from docs/06-verification-requirements.md (R-6.17): all configurations
+# building, regression, co-simulation, and formal equivalence.
+#
+# Verification that runs when someone remembers stops running around the time
+# the schedule gets tight -- which is when it starts to matter. Gate it.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  isaprof:
+    name: isaprof self-test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # The instrument has no third-party dependencies precisely so it runs
+        # anywhere. Testing the range is what keeps that true.
+        python: ["3.9", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: No third-party dependencies
+        working-directory: tools/isaprof
+        run: |
+          if grep -qE '^\s*dependencies\s*=\s*\[\s*[^]]' pyproject.toml; then
+            echo "isaprof declares runtime dependencies; it must not." >&2
+            exit 1
+          fi
+
+      - name: Unit tests
+        working-directory: tools/isaprof
+        run: python3 -m unittest discover -s tests -t . -v
+
+      - name: Fixtures are reproducible
+        working-directory: tools/isaprof/tests/fixtures
+        run: |
+          # Fixtures are checked in but generated. If regeneration changes them,
+          # the committed copies no longer match the generator that documents
+          # their expected decoding.
+          cp sample.elf .sample.elf.orig
+          cp spike_trace.log .spike_trace.log.orig
+          python3 make_fixtures.py
+          cmp sample.elf .sample.elf.orig
+          cmp spike_trace.log .spike_trace.log.orig
+          rm -f .sample.elf.orig .spike_trace.log.orig
+
+      - name: End-to-end run
+        working-directory: tools/isaprof
+        run: |
+          python3 -m isaprof static tests/fixtures/sample.elf --json /tmp/s.json
+          python3 -m isaprof dynamic tests/fixtures/spike_trace.log --json /tmp/d.json
+          python3 -m isaprof report /tmp/s.json /tmp/d.json -o /tmp/report.md
+          python3 -m isaprof report /tmp/s.json /tmp/d.json --format html -o /tmp/report.html
+          grep -q "Per-instruction counts" /tmp/report.md
+
+  scope:
+    name: repository guards
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: PDK data must not be present
+        run: |
+          if find . -path ./.git -prune -o \
+               \( -name '*.lib' -o -name '*.lef' -o -name '*.gds' \
+                  -o -name '*.cdl' -o -name '*.ndm' \) -print | grep -q .; then
+            echo "PDK-derived files found; see R-7.6 through R-7.9." >&2
+            exit 1
+          fi
+
+  docs:
+    name: documentation links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Relative links resolve
+        run: |
+          status=0
+          while IFS= read -r file; do
+            dir=$(dirname "$file")
+            # Relative markdown links only; external URLs are not checked here.
+            grep -oE '\]\([^)#][^)]*\)' "$file" 2>/dev/null \
+              | sed -E 's/^\]\(//; s/\)$//' \
+              | grep -vE '^(https?|mailto):' \
+              | sed -E 's/#.*$//' \
+              | while read -r link; do
+                  [ -z "$link" ] && continue
+                  if [ ! -e "$dir/$link" ]; then
+                    echo "$file: broken link -> $link"
+                    exit 1
+                  fi
+                done || status=1
+          done < <(find . -path ./.git -prune -o -name '*.md' -print)
+          exit $status

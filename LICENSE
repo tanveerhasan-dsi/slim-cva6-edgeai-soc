@@ -1,0 +1,55 @@
+CARVE-V — Licensing
+===================
+
+This repository is dual-licensed by content type.
+
+  Documentation, tooling, scripts and software
+  --------------------------------------------
+  Apache License, Version 2.0.
+  Full text: https://www.apache.org/licenses/LICENSE-2.0
+  SPDX-License-Identifier: Apache-2.0
+
+  Applies to: docs/, tools/, sw/, verif/, flow/, and all repository metadata.
+
+  Hardware description (RTL)
+  --------------------------
+  Solderpad Hardware License, Version 2.1.
+  Full text: https://solderpad.org/licenses/SHL-2.1/
+  SPDX-License-Identifier: SHL-2.1
+
+  Applies to: rtl/, excluding third-party submodules.
+
+Third-party components
+----------------------
+Components incorporated as submodules or vendored dependencies retain their
+own licences, which are not superseded by this file. In particular:
+
+  - CVA6 (OpenHW Group)      — Solderpad Hardware License 2.0
+  - Ibex (lowRISC)           — Apache License 2.0
+  - X-HEEP                   — Solderpad Hardware License 2.1
+
+Verify the licence of each component at the pinned revision before
+redistribution. Where a component's licence conflicts with the terms above,
+the component's own licence governs that component.
+
+PDK and foundry data
+--------------------
+No process design kit data, foundry-provided library data, or data derived from
+either is covered by this licence, and none may be committed to this repository.
+See docs/07-implementation-constraints.md, requirements R-7.6 through R-7.9.
+
+Copyright notice
+----------------
+Copyright (c) 2026 the CARVE-V contributors.
+
+Licensed under the terms above. Unless required by applicable law or agreed to
+in writing, software and hardware descriptions distributed under these licences
+are distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.
+
+Note for maintainers
+--------------------
+Before making this repository public, add the verbatim licence texts as
+LICENSE-APACHE and LICENSE-SOLDERPAD alongside this file. Several distribution
+channels and licence scanners require the full text to be present in the
+repository rather than referenced by URL.
