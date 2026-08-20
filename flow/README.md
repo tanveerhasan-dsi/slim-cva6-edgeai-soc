@@ -1,7 +1,9 @@
-# flow/
+# `flow/`
 
-Physical implementation. Empty by design, and **PDK-agnostic** until a
+Physical implementation. **Empty by design**, and **PDK-agnostic** until a
 technology is selected.
+
+## Layout
 
 | Directory | What belongs here |
 |---|---|
@@ -11,9 +13,10 @@ technology is selected.
 
 ## The rule that makes the results mean anything
 
-Every configuration runs the **same flow with the same constraints** (R-7.14).
-If configurations differ in flow or constraints, the PPA curve measures the
-flow rather than the design — and the curve is the project's primary figure.
+> [!IMPORTANT]
+> Every configuration runs the **same flow with the same constraints** (R-7.14).
+> If configurations differ in flow or constraints, the PPA curve measures the
+> flow rather than the design — and the curve is the project's primary figure.
 
 ## Reporting
 
@@ -24,14 +27,20 @@ re-derived.
 
 ## If a PDK under NDA is selected
 
-The open/closed split is enforced **mechanically** — directory boundaries and a
-CI check — not by convention (R-7.7). "Everyone knows not to commit that" fails
-eventually, and that particular failure cannot be undone by a later commit.
+> [!CAUTION]
+> The open/closed split is enforced **mechanically** — directory boundaries and a
+> CI check — not by convention (R-7.7). "Everyone knows not to commit that" fails
+> eventually, and that particular failure cannot be undone by a later commit.
 
 Withheld figures are marked as withheld, never silently omitted (R-7.9).
 
 ## Before committing to a node
 
-Confirm SRAM macro availability and density *first* (R-7.12), then trial-
-synthesise and floorplan (R-7.11). SRAM, not logic, usually decides the die — a
-design comfortable at 65 nm can simply fail to fit at 130 nm.
+> [!WARNING]
+> Confirm SRAM macro availability and density *first* (R-7.12), then trial-
+> synthesise and floorplan (R-7.11). **SRAM, not logic, usually decides the die**
+> — a design comfortable at 65 nm can simply fail to fit at 130 nm.
+
+---
+
+[`README`](../README.md) · [`docs/07 — Implementation Constraints`](../docs/07-implementation-constraints.md)
