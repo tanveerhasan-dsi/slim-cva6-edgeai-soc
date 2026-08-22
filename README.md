@@ -67,10 +67,33 @@ it means spending the area on something and measuring what it bought.
 | **O-3** | Preserve the software contract: every removed instruction remains executable, at a measured cost. |
 | **O-4** | Prove each pruned configuration equivalent to its baseline on the surviving subset. |
 | **O-5** | Reinvest the reclaimed area in a domain-specific datapath and measure the resulting change in energy. |
-| **O-6** | Carry one configuration through to a fabricated, measured test chip in an always-on edge perception application. |
+| **O-6** | Carry one configuration through to a fabricated, measured test chip in an always-on edge perception application. See [`docs/objective-6-test-chip.md`](docs/objective-6-test-chip.md) for a visual walk-through. |
 
 O-1 through O-4 are the research contribution. O-5 is what makes the
 contribution worth having. O-6 is what makes it real.
+
+### Suggested publishable unit
+
+**O-1 through O-4 form a self-contained conference paper, and one that does not
+depend on the silicon arriving.** The claim would be: *a method for deriving an
+instruction subset from a workload under a conservative criterion, applied to a
+hand-written application-class core, with binary compatibility preserved by
+emulation and each pruned configuration proven equivalent to its baseline.*
+Every element of that claim is demonstrable in simulation and synthesis, so the
+paper can be written and submitted while fabrication is still pending — which
+also de-risks the whole project against a slipped or failed tapeout.
+
+The natural venues are the computer-architecture and design-automation
+conferences, or a RISC-V summit for the compatibility contract specifically.
+
+**O-5 and O-6 are a second paper**, written once silicon is measured: the
+reinvestment result and the measured part. Attempting to publish all six
+objectives at once produces a paper whose most interesting contribution — the
+method — competes for space with a chip result that a reviewer will judge on
+entirely different criteria.
+
+A useful test for the split: if the tapeout were cancelled tomorrow, O-1 to O-4
+would still be publishable, and O-5 to O-6 would not.
 
 ---
 
@@ -114,9 +137,11 @@ The originating proposal is archived at
 
 ## Repository
 
-[`tools/isaprof/`](tools/isaprof/) is a working, dependency-free instrument for
-measuring which instructions a workload can execute and which it does execute.
-`rtl/`, `sw/`, `verif/` and `flow/` are empty placeholders.
+`rtl/`, `sw/`, `verif/`, `flow/` and `tools/` are empty placeholders. The
+directory names are a suggestion for where work lands, not a required structure.
+
+[`docs/objective-6-test-chip.md`](docs/objective-6-test-chip.md) illustrates the
+components involved in O-6.
 
 ---
 
