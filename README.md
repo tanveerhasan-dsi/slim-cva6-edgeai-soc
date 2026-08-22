@@ -130,9 +130,6 @@ would still be publishable, and O-5 to O-6 would not.
 - [X-HEEP](https://arxiv.org/abs/2401.05548) — configurable ultra-low-power
   RISC-V microcontroller for edge accelerator exploration.
 
-The originating proposal is archived at
-[`docs/prior-proposal.pdf`](docs/prior-proposal.pdf).
-
 ---
 
 ## Repository
@@ -140,8 +137,14 @@ The originating proposal is archived at
 `rtl/`, `sw/`, `verif/`, `flow/` and `tools/` are empty placeholders. The
 directory names are a suggestion for where work lands, not a required structure.
 
-[`docs/objective-6-test-chip.md`](docs/objective-6-test-chip.md) illustrates the
-components involved in O-6.
+Two supporting notes live in [`docs/`](docs/):
+
+- [`objective-6-test-chip.md`](docs/objective-6-test-chip.md) — the components
+  involved in O-6, illustrated.
+- [`pruning-and-bridging.md`](docs/pruning-and-bridging.md) — what can be pruned,
+  and how the trimmed processor still supports the same functionality
+  afterwards. Worked examples are in its
+  [annex](docs/pruning-and-bridging-annex.md).
 
 ---
 
