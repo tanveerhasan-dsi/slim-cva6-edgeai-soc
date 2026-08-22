@@ -1,8 +1,7 @@
 # 10 — References
 
-> [!CAUTION]
-> **Annotated. Read the annotation before citing** — several of these are
-> routinely cited for claims they do not make.
+Annotated. Read the annotation before citing — several of these are routinely
+cited for claims they do not make.
 
 **Contents:**
 [CVA6](#cva6) ·
@@ -25,7 +24,6 @@
 | [CV32A65X design document](https://docs.openhwgroup.org/projects/cva6-user-manual/04_cv32a65x/design/design.html) · [CV32A60X](https://docs.openhwgroup.org/projects/cva6-user-manual/07_cv32a60x/design/design.html) | The 32-bit configurations closest to the tapeout target. |
 | [openhwgroup/cva6](https://github.com/openhwgroup/cva6) | Upstream. Note [R-1.3](01-objectives-and-scope.md#5-core-target): start from **current** upstream. The repository was restructured; anything predating the `core/` layout and `config_pkg` will not match the documentation above. |
 
-> [!WARNING]
 > **Caution.** `CVA6Cfg.RVH` (hypervisor) defaults to `0`, is CV64-only, and is
 > still maturing. A default CV32 build has no H-extension logic to remove.
 > Similarly, CVA6 has no L2 in the core — coherence appears only in the
@@ -77,7 +75,7 @@
 |---|---|
 | [MLPerf Tiny](https://mlcommons.org/2026/07/mlperf-tiny-v1-4-results/) · [rules](https://github.com/mlcommons/tiny/blob/master/benchmark/MLPerfTiny_Rules.adoc) | Corpus A portable baselines. Follow the closed-division rules if you intend the numbers to be comparable. |
 | Embench-IoT | Embedded integer benchmarks, better suited to this class of device than CoreMark. |
-| CoreMark | Include for comparability. Note [R-6.1](06-verification-requirements.md#2-running-coremark-is-not-a-gate): it is a **smoke test, not a gate**. |
+| CoreMark | Include for comparability. Note [R-6.1](06-verification-requirements.md#2-a-benchmark-is-not-a-gate): it is a **smoke test, not a gate**. |
 
 ---
 

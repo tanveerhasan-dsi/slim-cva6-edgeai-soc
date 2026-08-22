@@ -1,15 +1,5 @@
 # 01 — Objectives and Scope
 
-**Contents:**
-[1. Requirement language](#1-requirement-language) ·
-[2. Objectives](#2-objectives) ·
-[3. In scope](#3-in-scope) ·
-[4. Out of scope](#4-out-of-scope) ·
-[5. Core target](#5-core-target) ·
-[6. Constraints](#6-constraints-that-shape-everything-else)
-
----
-
 ## 1. Requirement language
 
 | Keyword | Meaning |
@@ -18,8 +8,9 @@
 | **SHOULD** | Expected; a deviation must be recorded with its rationale. |
 | **MAY** | Permitted; no justification needed either way. |
 
-Every requirement is identified (`R-n.m`) and referenced from
-[`09-acceptance-criteria.md`](09-acceptance-criteria.md).
+Every requirement is identified (`R-n.m`). The gates in
+[`09-acceptance-criteria.md`](09-acceptance-criteria.md) state which
+requirements each one tests.
 
 ---
 
@@ -34,9 +25,8 @@ Every requirement is identified (`R-n.m`) and referenced from
 | **O-5** | Reinvest reclaimed area in a TinyML datapath and measure the resulting energy improvement. |
 | **O-6** | Carry one configuration through to a fabricated, measured test chip. |
 
-> **O-1 through O-4** are the research contribution.
-> **O-5** makes it worth doing.
-> **O-6** makes it real.
+O-1 through O-4 are the research contribution. O-5 makes it worth doing. O-6
+makes it real.
 
 ---
 
@@ -44,9 +34,9 @@ Every requirement is identified (`R-n.m`) and referenced from
 
 | Area | Covered |
 |---|---|
-| **Core** | CVA6: decode, execute, control and status registers, cache and predictor sizing. |
-| **Accelerator** | A CV-X-IF-attached TinyML coprocessor. |
-| **SoC integration** | Interconnect, on-chip memory, peripherals, clocking, reset, and power domains. |
+| **Core** | Decode, execute, control and status registers, cache and predictor sizing. |
+| **Accelerator** | A TinyML coprocessor attached to the core's execution pipeline. |
+| **SoC integration** | Interconnect, on-chip memory, peripherals, clocking, reset, power domains. |
 | **Software** | Boot ROM, emulation handlers, RTOS bring-up, quantised inference runtime. |
 | **Verification** | Architectural compliance, co-simulation, formal equivalence. |
 | **Physical** | Implementation through to signoff and an MPW submission. |
@@ -59,12 +49,12 @@ Stated explicitly, because each has consumed university tapeouts before:
 
 | Excluded | Detail |
 |---|---|
-| **Custom analogue or mixed-signal IP** | No DRAM PHY, no MIPI PHY, no PLL design, no ADC. Hard macros are integrated as vendor IP or omitted. |
-| **Off-chip DRAM** | The memory budget is on-chip SRAM. See [R-2.4](02-application-requirements.md#4-memory). |
+| **Custom analogue or mixed-signal IP** | Hard macros are integrated as vendor IP or omitted. |
+| **Off-chip DRAM** | The memory budget is on-chip. See R-2.4. |
 | **Multi-core and cache coherence** | Single hart. |
 | **Linux** | Bare-metal and RTOS only for the tapeout configuration. |
-| **A new ISA extension proposal to RISC-V International** | Custom instructions live in the custom opcode space and stay there. |
-| **Silicon-proven radiation, automotive or safety certification** | — |
+| **A new ISA extension proposal** | Custom instructions live in the custom opcode space and stay there. |
+| **Safety, automotive or radiation certification** | — |
 
 ---
 
@@ -73,19 +63,16 @@ Stated explicitly, because each has consumed university tapeouts before:
 | ID | Requirement |
 |:--:|---|
 | **R-1.1** | The tapeout configuration MUST be 32-bit (CV32A6 class). |
-| **R-1.2** | A 64-bit configuration MUST be maintained through the same pruning harness as a scaling study, reporting how pruning yield varies with XLEN. It is not taped out. |
+| **R-1.2** | A 64-bit configuration MUST pass through the same pruning harness as a scaling study, reporting how pruning yield varies with XLEN. It is not taped out. |
 | **R-1.3** | Work MUST start from a current upstream CVA6, and the exact commit MUST be recorded in the build manifest. |
 
-> **On R-1.1.** A 64-bit datapath, register file and ALU cost real area, and an
-> address space of a few hundred kilobytes cannot use any of it. Choosing RV64
-> for a device of this class spends a large part of the FPU and MMU savings before
-> any pruning begins. R-1.2 exists so that this claim is *measured* rather than
-> assumed — the scaling study is what turns a design preference into a result.
+> **On R-1.1 and R-1.2.** A 64-bit datapath, register file and ALU cost real
+> area that a small address space cannot use, spending part of the FPU and MMU
+> savings before pruning begins. R-1.2 exists so the claim is measured rather
+> than assumed.
 
-> [!WARNING]
 > **On R-1.3.** CVA6 was restructured substantially; checkouts predating the
-> `core/` layout and `config_pkg` do not match current documentation and will
-> silently waste weeks.
+> `core/` layout and `config_pkg` do not match current documentation.
 
 ---
 
@@ -93,15 +80,13 @@ Stated explicitly, because each has consumed university tapeouts before:
 
 | ID | Constraint |
 |:--:|---|
-| **R-1.4** | All PPA figures MUST be reported PDK-agnostically — normalised gate-equivalents and percentage deltas — so results remain publishable whatever PDK is chosen. |
-| **R-1.5** | If a PDK under NDA is selected, the repository MUST maintain a clean open/closed split; no PDK-derived data enters the public repository. |
-| **R-1.6** | Every reported number MUST be reproducible from a committed manifest: source commit, configuration, tool versions, and command line. |
+| **R-1.4** | All PPA figures MUST be reported in a PDK-agnostic form, so results remain publishable whatever PDK is chosen. |
+| **R-1.5** | If a PDK under NDA is selected, the repository MUST maintain a clean open/closed split. |
+| **R-1.6** | Every reported number MUST be reproducible from a committed manifest. |
 
-> [!IMPORTANT]
-> **On R-1.6.** This is the requirement that most often gets skipped and most
-> often costs a paper. A number nobody can regenerate six months later is not a
-> result, and on a project whose entire claim is methodological, an
-> irreproducible measurement undermines the contribution rather than supporting it.
+> **On R-1.6.** A number nobody can regenerate six months later is not a result.
+> On a project whose claim is methodological, an irreproducible measurement
+> undermines the contribution rather than supporting it.
 
 ---
 

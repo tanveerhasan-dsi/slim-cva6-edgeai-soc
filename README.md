@@ -12,37 +12,21 @@
 [![Licence: Apache-2.0](https://img.shields.io/badge/docs%20%26%20tools-Apache--2.0-blue.svg)](LICENSE)
 [![RTL: SHL-2.1](https://img.shields.io/badge/RTL-Solderpad%202.1-blue.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-3776AB.svg?logo=python&logoColor=white)](tools/isaprof/)
-[![isaprof: 46 tests, zero deps](https://img.shields.io/badge/isaprof-46%20tests%20%C2%B7%20zero%20deps-brightgreen.svg)](tools/isaprof/)
-[![Core: CV32A6](https://img.shields.io/badge/core-CVA6%20%C2%B7%20CV32A6-orange.svg)](https://github.com/openhwgroup/cva6)
 [![Status: specification](https://img.shields.io/badge/status-specification-lightgrey.svg)](docs/)
 
 </div>
 
-> [!IMPORTANT]
-> **How to read this repository.** Each document carries **requirements**
-> (numbered `R-n.m`, stating what must be true) followed by a **reference
-> design** section (stating one way to satisfy them). Where the team has
+> [!NOTE]
+> **How to read this repository.** Each document states **requirements**
+> (numbered `R-n.m` — what must be true) and then a **reference design** (one way
+> to satisfy them). Requirements are deliberately abstract; the reference design
+> is deliberately concrete and expected to be replaced. Where the team has
 > measured data and the reference has estimates, the team's judgement wins.
 >
-> Two things are **not** open to revision:
->
-> 1. the deletion criterion in [`04`](docs/04-methodology-requirements.md) §2, and
-> 2. the compatibility obligation in [`05`](docs/05-compatibility-requirements.md) §1.
->
-> Both fail in silicon, where nothing can be fixed.
-
----
-
-## Contents
-
-- [The one-sentence thesis](#the-one-sentence-thesis)
-- [The trap this project is designed to avoid](#the-trap-this-project-is-designed-to-avoid)
-- [The chip](#the-chip)
-- [What is in this repository](#what-is-in-this-repository)
-- [Start here](#start-here)
-- [First deliverable](#first-deliverable)
-- [Two facts worth knowing before you start](#two-facts-worth-knowing-before-you-start)
-- [Licence](#licence)
+> Two things are not open to revision: the deletion criterion in
+> [`04`](docs/04-methodology-requirements.md) §2 and the compatibility obligation
+> in [`05`](docs/05-compatibility-requirements.md) §1. Both fail in silicon,
+> where nothing can be fixed.
 
 ---
 
@@ -62,23 +46,20 @@ this from a configuration change.
 ## The trap this project is designed to avoid
 
 "Disable the FPU and re-synthesise" is a week of work. It produces a smaller
-core, a plausible graph, and one unanswerable question at review:
+core, a plausible graph, and one hard question at review:
 
-> [!CAUTION]
 > *Why didn't you just use Ibex, or X-HEEP? They're already small.*
 
 There is no good answer to that if the contribution is a config file. So the
-contribution here is not the smaller core — it is the **automated, verified,
+contribution is not the smaller core — it is the **automated, verified,
 compatibility-preserving flow** that produces it, and the demonstration that the
-reclaimed area buys something worth having.
+reclaimed area buys something worth having. Three things follow:
 
-Three things follow from that, and they are the requirements that matter:
-
-| # | Requirement that matters | Why |
+| # | What matters | Why |
 |:--:|---|---|
-| **1** | **Deletion must be driven by measured evidence**, not by which blocks look large | Any team can name the FPU. The long tail — which base integer opcodes, which CSRs, which compressed subsets — is where a method is needed, and where intuition silently fails. |
-| **2** | **Removed instructions must keep working** | Every deleted encoding gets an M-mode emulation handler, so the part still passes architectural compliance with handlers installed. A chip that is smaller *and* still runs the binaries is a result; a chip that is smaller because it runs less is a configuration. |
-| **3** | **Every pruning step must be formally equivalence-checked** against the baseline | This is the standard for silicon you are paying to fabricate, as opposed to silicon you are simulating. |
+| **1** | **Deletion is driven by measured evidence**, not by which blocks look large | Any team can name the FPU. The long tail — base integer opcodes, CSRs, compressed subsets — is where a method is needed, and where intuition fails. |
+| **2** | **Removed instructions keep working** | Every removed encoding is emulated, so the part stays architecturally compliant. Smaller *and* still runs the binaries is a result; smaller because it runs less is a configuration. |
+| **3** | **Every pruning step is formally equivalence-checked** against the baseline | The standard for silicon you are paying to fabricate, as opposed to silicon you are simulating. |
 
 ---
 
@@ -90,41 +71,35 @@ acoustic vibration.
 
 ```mermaid
 flowchart TD
-    SENS["Radar / IMU / mic<br/>SPI, I2S"]
-    AO["ALWAYS-ON DOMAIN — uW class<br/>front-end + trigger detect<br/>never gated"]
+    SENS["Radar / IMU / mic"]
+    AO["ALWAYS-ON DOMAIN<br/>front-end + trigger detect"]
     CORE["SLIM CVA6 (CV32A6)<br/>pruned to the measured subset"]
-    ML["Xtinyml DATAPATH<br/>weight-stationary<br/>INT8 / INT4 array"]
-    MEM["ON-CHIP SRAM ONLY<br/>weights + activations + code + data"]
+    ML["TinyML DATAPATH<br/>INT8 / INT4 array"]
+    MEM["ON-CHIP SRAM ONLY"]
     PWM(["PWM to motors"])
 
     SENS --> AO
     AO -->|wake| CORE
-    CORE <-->|"CV-X-IF (execute stage)"| ML
+    CORE <-->|coprocessor interface| ML
     CORE --> MEM
     ML --> MEM
     CORE --> PWM
-
-    linkStyle 1 stroke-width:2px
 ```
 
-The application is not decoration. It is what makes each deletion *arguable
-from the workload* rather than from taste — the point a reviewer will press
-hardest:
+The application is not decoration. It is what makes each deletion arguable
+*from the workload* rather than from taste:
 
 | Property of the workload | What it licenses |
 |---|---|
-| Models are int8/int4-quantised end to end | **No floating point needed** |
-| Flight control needs deterministic loop latency | **The MMU is a liability**, not merely unused — page-walk and TLB-miss jitter are disqualifying |
-| Single application, single core | **No virtual memory, no atomics** |
-| Radar and IMU networks fit in a few hundred kilobytes | **No DRAM controller and no DRAM PHY** |
-| SPI-rate sensor ingest | **No MIPI PHY** |
+| Quantised models, end to end | No floating point |
+| Flight control needs deterministic loop latency | The MMU is a liability, not merely unused |
+| Single application, single core | No virtual memory, no atomics |
+| Networks fit in on-chip memory | No DRAM controller or PHY |
+| Low-rate sensor ingest | No high-speed sensor PHY |
 
-The last two omissions are what keep this inside a university MPW.
-
-> [!NOTE]
-> That last point is load-bearing. Camera-class vision would need multiple
-> megabytes of weights and a MIPI PHY, and both are outside reach for a first
-> tapeout. **Choosing radar is what makes the arithmetic close.**
+The last two are load-bearing. Camera-class vision would need multiple megabytes
+of weights and a MIPI PHY, and both are outside reach for a first tapeout.
+Choosing radar is what keeps the design inside a university MPW.
 
 ---
 
@@ -138,12 +113,15 @@ The last two omissions are what keep this inside a university MPW.
 
 ### Documents
 
+New to the project? [**`OVERVIEW.md`**](docs/OVERVIEW.md) condenses all twelve
+documents into four pages.
+
 | № | Document | Requirements | Reference design |
 |:--:|---|---|---|
 | **00** | [Problem statement](docs/00-problem-statement.md) | The problem, prior art, novelty claim | — |
 | **01** | [Objectives and scope](docs/01-objectives-and-scope.md) | Objectives, scope, core target | — |
 | **02** | [Application requirements](docs/02-application-requirements.md) | The SoC and its workload | §9 Architecture |
-| **03** | [Core requirements](docs/03-core-requirements.md) | Core, pruning harness, reinvestment | §7 Xtinyml datapath |
+| **03** | [Core requirements](docs/03-core-requirements.md) | Core, pruning harness, reinvestment | §7 TinyML datapath |
 | **04** | [Methodology requirements](docs/04-methodology-requirements.md) | **The deletion criterion** | §9 Subsetting method |
 | **05** | [Compatibility requirements](docs/05-compatibility-requirements.md) | **The ISA contract** | §7 Contract design |
 | **06** | [Verification requirements](docs/06-verification-requirements.md) | Compliance, cosim, formal, CI | §9 Verification strategy |
@@ -157,7 +135,7 @@ The last two omissions are what keep this inside a university MPW.
 
 ## Start here
 
-The instrument runs immediately: **no toolchain, no `pip install`, no PDK.**
+The instrument runs immediately: no toolchain, no `pip install`, no PDK.
 
 ```bash
 cd tools/isaprof
@@ -166,50 +144,41 @@ python3 -m unittest discover -s tests -t .
 python3 -m isaprof static  tests/fixtures/sample.elf      --json s.json
 python3 -m isaprof dynamic tests/fixtures/spike_trace.log --json d.json
 python3 -m isaprof classify s.json d.json -o subset.json
-python3 -m isaprof report   s.json d.json -o report.md
 ```
 
-Then read, in order:
-
+For the whole specification in four pages, read
+[`OVERVIEW`](docs/OVERVIEW.md). For the full chain, read
 [`00`](docs/00-problem-statement.md) →
 [`01`](docs/01-objectives-and-scope.md) →
 [`02`](docs/02-application-requirements.md) →
-[`09`](docs/09-acceptance-criteria.md)
+[`09`](docs/09-acceptance-criteria.md).
 
 ---
 
 ## First deliverable
 
 A **subsetting methodology** satisfying
-[`docs/04`](docs/04-methodology-requirements.md) §§1–8, supported by an
-`isaprof` run over Corpus B.
+[`docs/04`](docs/04-methodology-requirements.md) §§1–8, supported by a
+measurement run over the target workload. §9 of that document gives a reference
+method, and `isaprof classify` implements its policy. Adopting it unmodified is
+permitted, but is a decision to state and check against your own workload
+(R-4.22), not a default to inherit silently.
 
-§9 of that document gives a reference method that satisfies those requirements,
-and `isaprof classify` implements its policy. Adopting it unmodified is
-permitted — but it is a *decision* that must be stated and its assumptions
-checked against your actual workload ([R-4.22](docs/04-methodology-requirements.md#7-the-instrument)),
-not a default to inherit silently.
-
-> [!TIP]
-> **Before reading [`11`](docs/11-expected-results-and-risks.md), write down your
-> own predictions.** Published predictions anchor. D-11 asks how they fared, and
-> that question is only answerable if yours were committed independently.
+Before reading [`11`](docs/11-expected-results-and-risks.md), write down your own
+predictions. Published predictions anchor, and D-11 asks how they fared.
 
 ---
 
 ## Two facts worth knowing before you start
 
-> [!WARNING]
-> **Do not begin from a stale CVA6.** CVA6 was restructured substantially; a
-> checkout predating the `core/` layout and `config_pkg` will not match any
-> current documentation. Start from current upstream and record the commit.
+**Do not begin from a stale CVA6.** The repository was restructured; a checkout
+predating the `core/` layout and `config_pkg` will not match current
+documentation. Start from current upstream and record the commit.
 
-> [!WARNING]
-> **Two popular "removals" remove nothing.** The hypervisor extension is gated
-> behind `CVA6Cfg.RVH`, defaults to `0`, is CV64-only, and is still maturing — a
-> default build has no H-extension logic to strip. Likewise, CVA6 has no L2 in
-> the core, so "remove L2 coherence" is not a saving; coherence appears only in
-> the OpenPiton configuration. Claiming area from either will not survive review.
+**Two popular "removals" remove nothing.** The hypervisor extension is disabled
+by default and is 64-bit only, so a default 32-bit build has no such logic to
+strip. CVA6 has no L2 in the core, so "remove L2 coherence" is not a saving.
+Claiming area from either will not survive review.
 
 ---
 
