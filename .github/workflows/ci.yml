@@ -1,8 +1,8 @@
 name: ci
 
 # The gates that exist today. As RTL lands, extend this with the remaining
-# stages from docs/06-verification-requirements.md (R-6.17): all configurations
-# building, regression, co-simulation, and formal equivalence.
+# stages: all configurations building, regression, co-simulation, and formal
+# equivalence.
 #
 # Verification that runs when someone remembers stops running around the time
 # the schedule gets tight -- which is when it starts to matter. Gate it.
@@ -78,7 +78,7 @@ jobs:
           if find . -path ./.git -prune -o \
                \( -name '*.lib' -o -name '*.lef' -o -name '*.gds' \
                   -o -name '*.cdl' -o -name '*.ndm' \) -print | grep -q .; then
-            echo "PDK-derived files found; see R-7.6 through R-7.9." >&2
+            echo "PDK-derived files must not enter this repository." >&2
             exit 1
           fi
 

@@ -20,8 +20,7 @@ flowchart LR
 
 `static` and `dynamic` measure; `classify` judges. They live in separate modules,
 and a test enforces that, because the policy is expected to be replaced and
-replacing it must not require touching the measurement. The policy is documented
-in [`docs/04`](../../docs/04-methodology-requirements.md) §9.
+replacing it must not require touching the measurement.
 
 **Contents:**
 [Why no dependencies](#why-it-has-no-dependencies) ·
@@ -91,9 +90,9 @@ trace, "executed zero times" is not an observation — it is the absence of one,
 and treating it as evidence is the mistake the whole method exists to prevent.
 The safe answer is also a useless one: nothing can be priced. Supply a trace.
 
-Adopting this policy unmodified is permitted but is a decision (R-4.22). Its
-real-time-critical instruction list encodes assumptions about the interrupt
-paths; check them against your own workload.
+Adopting this policy unmodified is a decision, not a default to inherit
+silently. Its real-time-critical instruction list encodes assumptions about the
+interrupt paths; check them against your own workload.
 
 ---
 
@@ -139,4 +138,4 @@ if a measurement profile ever carries a verdict.
 
 ---
 
-[`README`](../../README.md) · [`docs/04 — Methodology Requirements`](../../docs/04-methodology-requirements.md)
+[`README`](../../README.md)
