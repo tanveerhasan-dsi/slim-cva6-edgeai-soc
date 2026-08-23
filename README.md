@@ -9,6 +9,9 @@
 [![Licence: Apache-2.0](https://img.shields.io/badge/docs%20%26%20tools-Apache--2.0-blue.svg)](LICENSE)
 [![Core: CVA6](https://img.shields.io/badge/core-CVA6-orange.svg)](https://github.com/openhwgroup/cva6)
 
+**Reviewing this?** Start with the
+[one-page summary](docs/one-page-summary.md).
+
 </div>
 
 ---
@@ -124,12 +127,14 @@ Always-on edge perception node — [detail](docs/objective-6-test-chip.md):
 
 | Document | Contents |
 |---|---|
+| [`one-page-summary.md`](docs/one-page-summary.md) | Everything below, compressed to a single page: problem, proposal, the central idea, objectives, publication split and status. |
 | [`objective-6-test-chip.md`](docs/objective-6-test-chip.md) | O-6 illustrated. [What gets fabricated](docs/objective-6-test-chip.md#1-what-gets-fabricated) · [power domains](docs/objective-6-test-chip.md#2-the-idea-in-one-picture) · [inside the compute domain](docs/objective-6-test-chip.md#3-inside-the-compute-domain) · [source to silicon](docs/objective-6-test-chip.md#4-from-source-to-silicon) · [measurement setup](docs/objective-6-test-chip.md#5-measuring-the-finished-part) · [component inventory](docs/objective-6-test-chip.md#6-component-inventory) |
 | [`pruning-and-bridging.md`](docs/pruning-and-bridging.md) | What may be pruned and what guarantee replaces it. [What can be pruned](docs/pruning-and-bridging.md#1-what-can-be-pruned) · [what "the same functionality" means](docs/pruning-and-bridging.md#2-what-the-same-functionality-means) · [the mechanism](docs/pruning-and-bridging.md#3-the-mechanism) · [what it costs](docs/pruning-and-bridging.md#4-what-the-bridge-costs) · [when not to bridge](docs/pruning-and-bridging.md#5-when-not-to-bridge) |
 | [`pruning-and-bridging-annex.md`](docs/pruning-and-bridging-annex.md) | Handler-level detail, three removals followed through. [Integer division](docs/pruning-and-bridging-annex.md#1-example-integer-division) — an arithmetic result · [atomic operation](docs/pruning-and-bridging-annex.md#2-example-an-atomic-operation) — a guarantee by another mechanism · [misaligned access](docs/pruning-and-bridging-annex.md#3-example-a-misaligned-access) — a structural removal · [three ways this goes wrong](docs/pruning-and-bridging-annex.md#4-three-ways-this-goes-wrong) |
 
-**Suggested reading order for review:** this file → `pruning-and-bridging.md` →
-`objective-6-test-chip.md`. The annex only if handler-level detail is wanted.
+**Suggested reading order for review:** `one-page-summary.md` → this file →
+`pruning-and-bridging.md` → `objective-6-test-chip.md`. The annex only if
+handler-level detail is wanted.
 
 ---
 
@@ -160,7 +165,7 @@ Always-on edge perception node — [detail](docs/objective-6-test-chip.md):
 ## 6. Repository
 
 - `rtl/`, `sw/`, `verif/`, `flow/`, `tools/` — empty placeholders. Directory names are a suggestion, not a required structure.
-- [`docs/`](docs/) — the three supporting documents in §4.
+- [`docs/`](docs/) — the supporting documents listed in §4.
 
 ---
 
