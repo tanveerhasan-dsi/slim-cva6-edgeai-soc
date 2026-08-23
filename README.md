@@ -4,7 +4,8 @@
 
 ### Core Area Reduction by Verified Elimination
 
-**A workload-driven ISA subsetting flow for an application-class RISC-V core.**
+**A workload-driven ISA subsetting flow for an application-class RISC-V core,
+taped out as an always-on micro-UAV perception SoC.**
 
 [![Licence: Apache-2.0](https://img.shields.io/badge/docs%20%26%20tools-Apache--2.0-blue.svg)](LICENSE)
 [![Core: CVA6](https://img.shields.io/badge/core-CVA6-orange.svg)](https://github.com/openhwgroup/cva6)
@@ -44,22 +45,70 @@
 
 ---
 
-## 2. Objectives
+## 2. Application
 
-| ID | Objective |
-|:--:|---|
-| **O-1** | Establish a reproducible method for deriving an instruction subset from a target workload, with a deletion criterion that is provably conservative with respect to reachable code. |
-| **O-2** | Produce a family of pruned core configurations, each independently buildable and independently measurable. |
-| **O-3** | Preserve the software contract: every removed instruction remains executable, at a measured cost. |
-| **O-4** | Prove each pruned configuration equivalent to its baseline on the surviving subset. |
-| **O-5** | Reinvest the reclaimed area in a domain-specific datapath and measure the resulting change in energy. |
-| **O-6** | Carry one configuration through to a fabricated, measured test chip in an always-on edge perception application. |
+The target part is an **always-on autonomous micro-UAV perception node**:
 
-- **O-1 – O-4** — the research contribution.
-- **O-5** — what makes the contribution worth having.
-- **O-6** — what makes it real. Component-level walk-through: [`objective-6-test-chip.md`](docs/objective-6-test-chip.md).
+- **Obstacle avoidance** from mmWave radar point clouds.
+- **Airframe health monitoring** from IMU and acoustic vibration — bearing wear, propeller damage, motor fault.
+- Mounted on an airframe and evaluated in flight.
+- Duty-cycled: a microwatt always-on domain detects a trigger and wakes a power-gated compute domain holding the pruned core, the datapath and memory.
 
-### 2.1 Suggested publishable unit
+### 2.1 Why the application is a requirement, not a backdrop
+
+Every deletion must be arguable **from the workload**. An application chosen
+after the fact cannot support that argument.
+
+| Property of the workload | What it licenses |
+|---|---|
+| Quantised models, end to end | No floating point |
+| Control loop with a deadline | The MMU is a **liability**, not merely unused — page-walk and TLB-miss jitter are disqualifying |
+| Single application, single hart | No virtual memory, no atomics |
+| Networks fit in on-chip memory | No DRAM controller or PHY |
+| Low-rate sensor ingest | No high-speed sensor PHY |
+
+The second row is the model to follow. *Unused* is a weak argument — an unused
+block is merely wasteful. *Actively harmful to the timing guarantee the device
+sells* is a strong one.
+
+### 2.2 Why radar rather than a camera
+
+A feasibility judgement, and the most consequential choice in the specification:
+
+- **Weights.** A camera-class detector needs multiple megabytes. A realistic on-chip budget for a shared-run die is far smaller — an order-of-magnitude shortfall, not a tuning problem. Closing it requires off-chip DRAM, hence a DRAM PHY.
+- **Ingest.** A camera stream needs a hard analogue PHY.
+- Both are mixed-signal blocks out of reach for a first university tapeout, and both have sunk university tapeouts before.
+- Radar point clouds and IMU streams are low-bandwidth, and their networks fit on-chip. **The demonstration survives; the infeasibility does not.**
+
+### 2.3 Figures of merit
+
+- Energy per inference.
+- **Worst-case** sensor-to-actuator latency and jitter — not the mean, which conceals exactly the tail a control loop cannot tolerate.
+- Area at equal die size: the same silicon budget, spent differently.
+- Silicon measurements against the predictions recorded beforehand.
+
+Component-level walk-through: [`objective-6-test-chip.md`](docs/objective-6-test-chip.md).
+
+---
+
+## 3. Objectives
+
+**Research contribution — O-1 to O-4**
+
+- **O-1 · Subsetting method.** Establish a reproducible method for deriving an instruction subset from a target workload, with a deletion criterion that is provably conservative with respect to reachable code.
+- **O-2 · Configuration family.** Produce a family of pruned core configurations, each independently buildable and independently measurable.
+- **O-3 · Software contract.** Preserve binary compatibility: every removed instruction remains executable, at a measured cost.
+- **O-4 · Formal equivalence.** Prove each pruned configuration equivalent to its baseline on the surviving subset.
+
+**What makes it worth having — O-5**
+
+- **O-5 · Reinvestment.** Reinvest the reclaimed area in a domain-specific datapath and measure the resulting change in energy.
+
+**What makes it real — O-6**
+
+- **O-6 · Fabricated part.** Carry one configuration through to a fabricated, measured test chip in an always-on edge perception application. Component-level walk-through: [`objective-6-test-chip.md`](docs/objective-6-test-chip.md).
+
+### 3.1 Suggested publishable unit
 
 **Paper 1 — O-1 to O-4. Does not depend on silicon arriving.**
 
@@ -77,11 +126,11 @@
 
 ---
 
-## 3. Technical approach
+## 4. Technical approach
 
 Condensed from the supporting documents. Section links go to the detail.
 
-### 3.1 What is removed
+### 4.1 What is removed
 
 Two groups, distinguished by whether software can tell —
 [detail](docs/pruning-and-bridging.md#1-what-can-be-pruned):
@@ -91,7 +140,7 @@ Two groups, distinguished by whether software can tell —
 - **Not software-visible** — structural sizing (scoreboard entries, caches, predictors); implementation strategy (iterative rather than single-cycle multiplier); unused address translation; verification-only interfaces.
   - No bridge required. Often where most of the area is.
 
-### 3.2 How functionality is preserved
+### 4.2 How functionality is preserved
 
 - **Guarantee** — for every instruction the baseline could execute, the pruned part produces the same architectural result. The split between hardware and software is invisible to the program except in timing. [Detail](docs/pruning-and-bridging.md#2-what-the-same-functionality-means).
 - **Unit of equivalence** — the pruned core **plus its handler library**. Neither half is a complete implementation.
@@ -100,30 +149,20 @@ Two groups, distinguished by whether software can tell —
 - **Coverage enforcement** — hardware configuration, handler library and test set are all generated from one removed-encoding set, so they cannot drift. [Detail](docs/pruning-and-bridging.md#how-coverage-is-guaranteed).
 - **Scope of cover** — a removed encoding gets a handler whether or not the workload was seen to use it. Two verdicts, not three.
 
-### 3.3 What it costs
+### 4.3 What it costs
 
 - Emulation is a compatibility guarantee, **not** a performance one.
 - Whole-program cost ≈ *frequency × (emulated cost − hardware cost)*; low, because removal is measurement-driven and removed instructions are rare. [Detail](docs/pruning-and-bridging.md#4-what-the-bridge-costs).
 - Must be **measured, not summed** — trap overhead interacts with pipeline and cache state.
 - Averages hide the tail.
 
-### 3.4 Where the boundary cannot move
+### 4.4 Where the boundary cannot move
 
 - Bridging guarantees an instruction **works**, not that it works **in time**. [Detail](docs/pruning-and-bridging.md#5-when-not-to-bridge).
 - An unbounded trap on the time-critical path is a failure of what the device sells, not a small slowdown.
 - Some instructions therefore stay in hardware with a documented latency justification — a stronger result than removing them and breaking the timing guarantee.
 
-### 3.5 The target part (O-6)
-
-Always-on edge perception node — [detail](docs/objective-6-test-chip.md):
-
-- One application, one hart, quantised arithmetic, everything in on-chip memory, a control loop with a deadline.
-- Two power domains: a small always-on domain for trigger detection; a power-gated compute domain holding the pruned core, the domain-specific datapath and memory.
-- Same die area as the baseline, spent differently. Figures of merit: energy per inference, worst-case response latency, silicon against prediction.
-
----
-
-## 4. Supporting documents
+## 5. Supporting documents
 
 | Document | Contents |
 |---|---|
@@ -138,7 +177,7 @@ handler-level detail is wanted.
 
 ---
 
-## 5. References
+## 6. References
 
 **The core**
 
@@ -162,14 +201,14 @@ handler-level detail is wanted.
 
 ---
 
-## 6. Repository
+## 7. Repository
 
 - `rtl/`, `sw/`, `verif/`, `flow/`, `tools/` — empty placeholders. Directory names are a suggestion, not a required structure.
-- [`docs/`](docs/) — the supporting documents listed in §4.
+- [`docs/`](docs/) — the supporting documents listed in §5.
 
 ---
 
-## 7. Licence
+## 8. Licence
 
 - Apache-2.0 — documentation and tooling.
 - Solderpad Hardware Licence 2.1 — RTL.
